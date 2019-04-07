@@ -1,0 +1,12 @@
+from turtle import *
+sam = Turtle()
+sam.forward(470)
+sam.backward(940)
+sam.forward(470)
+sam.left(90)
+sam.forward(475)
+sam.backward(950)
+sam.penup()
+sam.goto(-100,100)
+sam.pendown()
+sam.forward(200)
