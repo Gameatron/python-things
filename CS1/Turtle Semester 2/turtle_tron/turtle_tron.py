@@ -1,9 +1,13 @@
-from turtle import *
-from time import *
+from turtle import Turtle, Screen
+from time import time, sleep
 import json
+from math import floor
+from random import randint, choice
 
-TARGET_FPS = 30
-TURTLE_SPEED = 5
+TARGET_FPS = 60
+TURTLE_SPEED = 2.5
+GAME_ID = int(time()//1)
+JSON_LINK = "/home/takoda/python-things/CS1/Turtle Semester 2/turtle_tron/data.json"
 
 
 class Light_Turtle(Turtle):
@@ -43,8 +47,10 @@ class Application:
         self.window = Screen()
         self.window.setup(height=700, width=700)
         self.window.tracer(0, 0)
+        self.window.bgcolor("black")
         self.writer = Turtle()
         self.writer.hideturtle()
+        self.writer.color("blue")
         self.gui_maker = Turtle()
         self.gui_maker.hideturtle()
         self.make_gui()
@@ -57,6 +63,16 @@ class Application:
                                     start_point=(100, 0))
         self.player2_score = 0
         self.window.title("Turtle Tron")
+        self.colors = ("green", "yellow", "white")
+        self.powerup1 = Turtle(shape="circle")
+        self.powerup2 = Turtle(shape='circle')
+        self.powerup3 = Turtle(shape='circle')
+        self.powerup1.turtlesize(.5)
+        self.powerup2.turtlesize(.5)
+        self.powerup3.turtlesize(.5)
+        self.powerup_t = (self.powerup1, self.powerup2, self.powerup3)
+        self.powerup_coords = []
+        self.powerups = ("speed", "clear", "invis")
         self.window.update()
 
     def start(self):
@@ -65,7 +81,7 @@ class Application:
                 ans = self.window.textinput("Start",
                                             "Press enter when you are ready to begin, type 'q' to quit.").lower()
             except AttributeError:
-                return
+                break
             if ans == 'q' or ans == 'quit':
                 break
             else:
@@ -83,18 +99,59 @@ class Application:
                         font=("Times New Roman", 36, "bold"),
                         align='center')
         if self.player1_score == self.player2_score:
-            self.window.textinput("Finish!",
-                                  "Neither player is eligible to be on the leaderboard. Press enter to exit.")
+            try:
+                name1 = self.window.textinput("Finish!",
+                                            "Please enter a name for the leaderboards, Player 1").lower()
+                name2 = self.window.textinput("Finish!",
+                                            "Please enter a name for the leaderboards, Player 2").lower()
+            except AttributeError:
+                return
+            with open(JSON_LINK, 'r') as f:
+                data = json.load(f)
+                data[GAME_ID] = {}
+                data[GAME_ID]['player1'] = name1
+                data[GAME_ID]['p1score'] = self.player1_score
+                data[GAME_ID]['player2'] = name2
+                data[GAME_ID]['p2score'] = self.player2_score
+            with open(JSON_LINK, 'w') as f:
+                json.dump(data, f)
         elif self.player1_score > self.player2_score:
-            name = self.window.textinput("Finish!",
-                                         "Please enter a name for the leaderboards, Player 1").lower()
-            print(name, self.player1_score)
+            try:
+                name1 = self.window.textinput("Finish!",
+                                            "Please enter a name for the leaderboards, Player 1").lower()
+                name2 = self.window.textinput("Finish!",
+                                            "Please enter a name for the leaderboards, Player 2").lower()
+            except AttributeError:
+                return 
+            with open(JSON_LINK, 'r') as f:
+                data = json.load(f)
+                data[GAME_ID] = {}
+                data[GAME_ID]['player1'] = name1
+                data[GAME_ID]['p1score'] = self.player1_score
+                data[GAME_ID]['player2'] = name2
+                data[GAME_ID]['p2score'] = self.player2_score
+            with open(JSON_LINK, 'w') as f:
+                json.dump(data, f)
         elif self.player2_score > self.player1_score:
-            name = self.window.textinput("Finish!",
-                                         "Please enter a name for the leaderboards, Player 2")
-            print(name, self.player2_score)
+            try:
+                name1 = self.window.textinput("Finish!",
+                                            "Please enter a name for the leaderboards, Player 1").lower()
+                name2 = self.window.textinput("Finish!",
+                                            "Please enter a name for the leaderboards, Player 2").lower()
+            except AttributeError:
+                return 
+            with open(JSON_LINK, 'r') as f:
+                data = json.load(f)
+                data[GAME_ID] = {}
+                data[GAME_ID]['player1'] = name1
+                data[GAME_ID]['p1score'] = self.player1_score
+                data[GAME_ID]['player2'] = name2
+                data[GAME_ID]['p2score'] = self.player2_score
+            with open(JSON_LINK, 'w') as f:
+                json.dump(data, f)
 
     def run(self):
+        self.place_powerups()
         self.writer.clear()
         self.window.update()
         self.some_randomvalue_idk += 1
@@ -157,6 +214,7 @@ class Application:
         self.gui_maker.pendown()
 
     def make_gui(self):
+        self.gui_maker.color("red")
         self.gui_maker.pensize(15)
         x, y = self.screen_size
         self.gui_goto(x/2, y/2)
@@ -170,14 +228,15 @@ class Application:
         self.writer.penup()
         self.writer.home()
         self.writer.pendown()
-        timer = -3
-        for _ in range(3):
-            self.writer.write(abs(timer),
+        timer = 3
+        for _ in range(4):
+            self.writer.write(timer,
                               font=("Times New Roman", 24, "bold"),
                               align="center")
             sleep(1)
-            timer += 1
+            timer -= 1
             self.writer.clear()
+
 
     def check_walls(self):
         p1x, p1y = self.player1.position()
@@ -248,7 +307,7 @@ class Application:
         i = 1
         if turtle2 == None:
             turtle1.hideturtle()
-            for _ in range(59):
+            for _ in range(39):
                 if i % 20 == 0:
                     i = 0
                     turtle1.seth(270)
@@ -269,7 +328,7 @@ class Application:
         else:
             turtle1.hideturtle()
             turtle2.hideturtle()
-            for _ in range(59):
+            for _ in range(39):
                 if i % 20 == 0:
                     i = 0
                     turtle1.seth(270)
@@ -298,6 +357,15 @@ class Application:
                 self.window.update()
                 i += 1
 
+    def place_powerups(self):
+        for turtle in self.powerup_t:
+            ranx = randint(-250, 250)
+            rany = randint(-250, 250)
+            turtle.penup()
+            turtle.goto(ranx, rany)
+            turtle.pendown()
+            turtle.color(choice(self.colors))
+        self.window.update()
 
 def main():
     app = Application()
